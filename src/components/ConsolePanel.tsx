@@ -78,8 +78,8 @@ export function ConsolePanel() {
             {diagnostics.length > 0 && (
               <span className={`px-1.5 py-0.2 text-[10px] font-bold rounded-full ${
                 diagnostics.some(d => d.severity === 'error') 
-                  ? 'bg-error bg-opacity-20 text-error' 
-                  : 'bg-warning bg-opacity-20 text-warning'
+                  ? 'bg-error/20 text-error' 
+                  : 'bg-warning/20 text-warning'
               }`}>
                 {diagnostics.length}
               </span>

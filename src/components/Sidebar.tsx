@@ -25,7 +25,7 @@ export function Sidebar() {
           onClick={() => setActiveStage(stage.id)}
           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-info focus-visible:outline-none ${
             activeStage === stage.id
-              ? 'bg-info bg-opacity-20 text-info border border-info'
+              ? 'bg-info/20 text-info border border-info'
               : 'text-text-secondary hover:bg-bg-tertiary hover:text-text-primary border border-transparent'
           }`}
           title={stage.title}

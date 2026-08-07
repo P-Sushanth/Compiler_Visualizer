@@ -94,7 +94,7 @@ export function IRViewer() {
   return (
     <div className="w-full h-full relative bg-bg-primary">
       {isCalculating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-primary bg-opacity-80 backdrop-blur-sm">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-primary/80 backdrop-blur-sm">
           <span className="text-info font-mono text-sm animate-pulse">Calculating CFG Layout...</span>
         </div>
       )}

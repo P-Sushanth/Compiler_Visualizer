@@ -36,7 +36,7 @@ export function BasicBlockUI({ data }: { data: any }) {
           data.instructions.map((inst: any, idx: number) => (
             <div 
               key={inst.id} 
-              className="flex font-mono py-0.5 px-1 hover:bg-bg-secondary hover:bg-opacity-50 rounded cursor-pointer transition-colors group"
+              className="flex font-mono py-0.5 px-1 hover:bg-bg-secondary/50 rounded cursor-pointer transition-colors group"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >

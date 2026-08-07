@@ -76,7 +76,7 @@ export const EditorPanel = memo(function EditorPanel() {
         range: new monaco.Range(err.line, 1, err.line, 1),
         options: {
           isWholeLine: true,
-          className: 'bg-error bg-opacity-20',
+          className: 'bg-error/20',
           glyphMarginClassName: 'bg-error',
           hoverMessage: { value: err.message }
         }
@@ -89,7 +89,7 @@ export const EditorPanel = memo(function EditorPanel() {
         range: new monaco.Range(highlightedLine, 1, highlightedLine, 1),
         options: {
           isWholeLine: true,
-          className: 'bg-info bg-opacity-20 border-l-4 border-info'
+          className: 'bg-info/20 border-l-4 border-info'
         }
       });
     }
@@ -151,7 +151,7 @@ export const EditorPanel = memo(function EditorPanel() {
             onClick={() => setConsoleOpen(!isConsoleOpen)}
             className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold border transition-colors cursor-pointer ${
               isConsoleOpen 
-                ? 'bg-info bg-opacity-20 text-info border-info border-opacity-40 font-extrabold' 
+                ? 'bg-info/20 text-info border-info/40 font-extrabold' 
                 : 'bg-bg-tertiary text-text-secondary border-border-primary hover:border-border-secondary'
             }`}
           >

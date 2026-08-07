@@ -65,7 +65,7 @@ export function SemanticViewer() {
               {Object.values(symbols).map(sym => (
                 <div 
                   key={sym.id} 
-                  className="flex items-center px-2 py-2 bg-bg-tertiary border border-border-primary border-opacity-30 rounded hover:bg-bg-secondary transition-colors cursor-pointer"
+                  className="flex items-center px-2 py-2 bg-bg-tertiary border border-border-primary/30 rounded hover:bg-bg-secondary transition-colors cursor-pointer"
                   onMouseEnter={() => handleMouseEnter(sym.declarationNodeId)}
                   onMouseLeave={handleMouseLeave}
                 >
@@ -86,12 +86,12 @@ export function SemanticViewer() {
             <div className="space-y-4">
               {Object.values(scopes).map(scope => (
                 <div key={scope.id} className="bg-bg-tertiary border border-border-primary rounded p-3">
-                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-border-primary border-opacity-50">
+                  <div className="flex justify-between items-center mb-3 pb-2 border-b border-border-primary/50">
                     <div className="text-sm font-semibold text-text-primary">Scope {scope.id.slice(0, 8)}</div>
                     {scope.parentScopeId ? (
                       <div className="text-xs text-text-muted">Parent: {scope.parentScopeId.slice(0, 8)}</div>
                     ) : (
-                      <div className="text-xs text-[#238636] font-bold px-2 py-0.5 rounded bg-[#238636] bg-opacity-10 border border-[#238636] border-opacity-20">GLOBAL</div>
+                      <div className="text-xs text-[#238636] font-bold px-2 py-0.5 rounded bg-[#238636]/10 border border-[#238636]/20">GLOBAL</div>
                     )}
                   </div>
                   

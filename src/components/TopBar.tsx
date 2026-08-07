@@ -18,7 +18,7 @@ export function TopBar() {
             const { sourceCode } = useEditorStore.getState();
             pipeline.compile(sourceCode);
           }}
-          className="px-3 py-1.5 text-xs font-medium rounded-md bg-info hover:bg-opacity-90 transition-all text-text-primary cursor-pointer focus-visible:ring-2 focus-visible:ring-info focus-visible:outline-none"
+          className="px-3 py-1.5 text-xs font-medium rounded-md bg-info hover:bg-info/90 transition-all text-text-primary cursor-pointer focus-visible:ring-2 focus-visible:ring-info focus-visible:outline-none"
           aria-label="Compile code and run pipeline"
         >
           Compile Code

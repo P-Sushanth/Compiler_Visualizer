@@ -16,30 +16,34 @@ export function ASTNodeUI({ data }: { data: any }) {
   };
 
   // Assign distinct colors to node types
-  let bgColor = 'bg-bg-secondary border-border-primary';
-  if (data.nodeType === 'Program' || data.nodeType === 'FunctionDeclaration') {
-    bgColor = 'bg-[#394355] border-[#6E7681]';
-  } else if (data.nodeType?.includes('Statement')) {
-    bgColor = 'bg-[#2A3140] border-info border-opacity-50';
-  } else if (data.nodeType?.includes('Expression') || data.nodeType?.includes('Literal') || data.nodeType?.includes('Identifier')) {
-    bgColor = 'bg-bg-tertiary border-warning border-opacity-50';
+  let bgColor = 'bg-bg-tertiary border-border-primary';
+  if (data.type === 'error') {
+    bgColor = 'bg-[#2A1D1D] border-error';
+  } else if (data.type === 'declaration' || data.type === 'function') {
+    bgColor = 'bg-[#2A3140] border-info/50';
+  } else if (data.type === 'statement') {
+    bgColor = 'bg-bg-tertiary border-warning/50';
   }
 
   return (
     <div 
-      className={`min-w-[150px] p-2 rounded shadow-md border ${bgColor} text-xs font-mono flex flex-col items-center justify-center transition-transform hover:scale-105 cursor-pointer`}
+      className={`p-3 rounded shadow-md border ${bgColor} font-mono max-w-[180px] flex flex-col items-center justify-center transition-transform hover:scale-105 cursor-pointer`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Handle type="target" position={Position.Top} className="w-2 h-2 !bg-info" />
+      <Handle type="target" position={Position.Top} className="w-1.5 h-1.5 !bg-info opacity-40" />
       
-      <div className="font-bold text-text-primary uppercase tracking-wide truncate max-w-full pb-1">
+      <div className="text-[10px] uppercase font-bold text-text-muted mb-0.5 tracking-wider truncate max-w-full">
+        {data.type}
+      </div>
+      
+      <div className="text-xs font-semibold text-text-primary text-center break-all max-w-full">
         {data.label}
       </div>
       
-      {data.details && (
-        <div className="text-text-muted truncate max-w-full text-[10px] bg-bg-primary bg-opacity-40 px-2 py-0.5 rounded">
-          {data.details}
+      {data.value !== undefined && (
+        <div className="text-text-muted truncate max-w-full text-[10px] bg-bg-primary/40 px-2 py-0.5 rounded">
+          {data.value}
         </div>
       )}
       

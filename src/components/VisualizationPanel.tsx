@@ -18,7 +18,7 @@ export function VisualizationPanel() {
         <span className="text-xs font-semibold tracking-wide uppercase text-text-secondary">
           Visualization Panel
         </span>
-        <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-info bg-opacity-15 text-info border border-info border-opacity-35">
+        <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-info/15 text-info border border-info/35">
           {String(activeStage).toUpperCase()} STAGE
         </span>
       </div>

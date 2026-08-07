@@ -45,7 +45,7 @@ export function AssemblyViewer() {
             return (
               <div 
                 key={inst.id} 
-                className={"flex font-mono py-1 px-2 rounded hover:bg-bg-secondary hover:bg-opacity-80 transition-colors cursor-pointer group " + (isLabel ? "mt-4" : "")}
+                className={"flex font-mono py-1 px-2 rounded hover:bg-bg-secondary/80 transition-colors cursor-pointer group " + (isLabel ? "mt-4" : "")}
                 onMouseEnter={() => handleMouseEnter(inst.sourceNodeId)}
                 onMouseLeave={handleMouseLeave}
               >
