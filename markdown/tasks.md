@@ -240,10 +240,10 @@ The application must:
 - [x] Add batching
 
 ### Bundle Optimization
-- [ ] Analyze bundle size
-- [ ] Add lazy loading
-- [ ] Split visualization chunks
-- [ ] Remove unnecessary dependencies
+- [x] Analyze bundle size
+- [x] Add lazy loading
+- [x] Split visualization chunks
+- [x] Remove unnecessary dependencies
 
 ---
 
