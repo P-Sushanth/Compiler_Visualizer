@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useCompilerStore } from '@/store/compilerStore';
-import { EmptyState } from '@/components/EmptyState';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 export function OptimizerViewer() {
   const ir = useCompilerStore(state => state.ir);
@@ -10,7 +10,13 @@ export function OptimizerViewer() {
   const [activeTab, setActiveTab] = useState<'passes' | 'diff'>('passes');
 
   if (!ir || !optimizedIR) {
-    return <EmptyState title="No Optimization Passes" description="Compile your code to view applied optimizations and before/after diffs." />;
+    return (
+      <StageErrorFallback 
+        stage="optimizer" 
+        title="No Optimization Passes" 
+        description="Compile your C code to view applied optimizations and before/after diffs." 
+      />
+    );
   }
 
   // Formatting IR for Diff View

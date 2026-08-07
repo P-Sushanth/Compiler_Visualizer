@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useCompilerStore } from '@/store/compilerStore';
 import { useEditorStore } from '@/store/editorStore';
-import { EmptyState } from '@/components/EmptyState';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 export function SemanticViewer() {
   const semanticModel = useCompilerStore((state) => state.semanticModel);
@@ -12,7 +12,11 @@ export function SemanticViewer() {
 
   if (!semanticModel || Object.keys(semanticModel.scopes).length === 0) {
     return (
-      <EmptyState title="Semantic Analysis Pending" description="Compile your code to see symbol tables and scope hierarchy." />
+      <StageErrorFallback 
+        stage="semantic" 
+        title="Semantic Model Pending" 
+        description="Compile your C code to see symbol tables and scope hierarchy." 
+      />
     );
   }
 

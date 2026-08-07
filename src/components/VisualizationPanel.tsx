@@ -7,7 +7,6 @@ const IRViewer = React.lazy(() => import('@/features/ir/IRViewer').then(m => ({ 
 const OptimizerViewer = React.lazy(() => import('@/features/optimizer/OptimizerViewer').then(m => ({ default: m.OptimizerViewer })));
 const AssemblyViewer = React.lazy(() => import('@/features/assembly/AssemblyViewer').then(m => ({ default: m.AssemblyViewer })));
 
-import { EmptyState } from '@/components/EmptyState';
 import { useUIStore } from '@/store/uiStore';
 
 export function VisualizationPanel() {
@@ -42,10 +41,19 @@ export function VisualizationPanel() {
           ) : activeStage === 'assembly' ? (
             <AssemblyViewer />
           ) : (
-            <EmptyState 
-              title={`Active Visualization: ${String(activeStage).toUpperCase()}`} 
-              description="Compile your C code to see the stage-specific outputs (Tokens, AST Graph, Scope Hierarchy, LLVM IR, or Assembly Instructions)." 
-            />
+            <div className="flex flex-col h-full w-full items-center justify-center p-6 bg-bg-primary text-center">
+              <div className="bg-bg-tertiary border border-border-primary rounded-xl p-8 flex flex-col items-center max-w-md w-full shadow-lg">
+                <div className="mb-4 w-12 h-12 bg-bg-secondary border border-border-primary rounded-lg flex items-center justify-center shadow-inner">
+                  <div className="w-6 h-6 border-2 border-dashed border-text-muted rounded"></div>
+                </div>
+                <h3 className="text-text-primary font-bold tracking-wide mb-2">
+                  Active Visualization: {String(activeStage).toUpperCase()}
+                </h3>
+                <p className="text-text-muted text-sm leading-relaxed">
+                  Compile your C code to see the stage-specific outputs (Tokens, AST Graph, Scope Hierarchy, LLVM IR, or Assembly Instructions).
+                </p>
+              </div>
+            </div>
           )}
         </Suspense>
       </div>

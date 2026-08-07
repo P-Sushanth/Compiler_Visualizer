@@ -3,7 +3,10 @@ import Editor, { useMonaco } from '@monaco-editor/react';
 import type { OnMount } from '@monaco-editor/react';
 import { useEditorStore, CODE_EXAMPLES } from '@/store/editorStore';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useUIStore } from '@/store/uiStore';
 import { pipeline } from '@/services/PipelineOrchestrator';
+import { ConsolePanel } from './ConsolePanel';
+import { Panel, Group, Separator } from 'react-resizable-panels';
 
 import { memo } from 'react';
 
@@ -14,6 +17,8 @@ export const EditorPanel = memo(function EditorPanel() {
     errorDecorations,
     highlightedLine
   } = useEditorStore();
+
+  const { isConsoleOpen, setConsoleOpen } = useUIStore();
   
   const monaco = useMonaco();
   const editorRef = useRef<any>(null);
@@ -92,6 +97,15 @@ export const EditorPanel = memo(function EditorPanel() {
     decorationsCollection.current.set(decorations);
   }, [errorDecorations, highlightedLine, monaco]);
 
+  // Highlighted line auto-scroll and focus
+  useEffect(() => {
+    if (editorRef.current && highlightedLine !== null) {
+      editorRef.current.revealLineInCenter(highlightedLine);
+      editorRef.current.setPosition({ lineNumber: highlightedLine, column: 1 });
+      editorRef.current.focus();
+    }
+  }, [highlightedLine]);
+
   const handleEditorMount: OnMount = (editor, monacoInstance) => {
     editorRef.current = editor;
 
@@ -110,8 +124,8 @@ export const EditorPanel = memo(function EditorPanel() {
     [setSourceCode]
   );
 
-  return (
-    <section className="flex-1 bg-bg-primary flex flex-col min-w-0 h-full">
+  const renderEditorContent = () => (
+    <div className="flex flex-col h-full w-full">
       <div className="flex items-center px-4 h-10 bg-bg-secondary border-b border-border-primary shrink-0 justify-between">
         <div className="flex items-center space-x-4">
           <span className="text-xs font-mono text-text-secondary">main.c</span>
@@ -127,12 +141,22 @@ export const EditorPanel = memo(function EditorPanel() {
             <option value="loop">For Loop</option>
           </select>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <select className="bg-bg-tertiary text-text-muted text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border border-border-primary outline-none cursor-pointer">
             <option value="c99">C99</option>
             <option value="c89">C89</option>
             <option value="c11">C11</option>
           </select>
+          <button
+            onClick={() => setConsoleOpen(!isConsoleOpen)}
+            className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold border transition-colors cursor-pointer ${
+              isConsoleOpen 
+                ? 'bg-info bg-opacity-20 text-info border-info border-opacity-40 font-extrabold' 
+                : 'bg-bg-tertiary text-text-secondary border-border-primary hover:border-border-secondary'
+            }`}
+          >
+            Console
+          </button>
         </div>
       </div>
       <div className="flex-1 w-full bg-bg-tertiary overflow-hidden relative">
@@ -166,6 +190,24 @@ export const EditorPanel = memo(function EditorPanel() {
           }
         />
       </div>
+    </div>
+  );
+
+  return (
+    <section className="flex-1 bg-bg-primary flex flex-col min-w-0 h-full">
+      {isConsoleOpen ? (
+        <Group orientation="vertical">
+          <Panel defaultSize={70} minSize={30}>
+            {renderEditorContent()}
+          </Panel>
+          <Separator className="h-1 bg-border-primary hover:bg-info hover:h-1 transition-all cursor-row-resize active:bg-info z-10" />
+          <Panel defaultSize={30} minSize={15}>
+            <ConsolePanel />
+          </Panel>
+        </Group>
+      ) : (
+        renderEditorContent()
+      )}
     </section>
   );
 });

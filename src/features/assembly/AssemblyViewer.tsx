@@ -1,6 +1,6 @@
 import { useCompilerStore } from '@/store/compilerStore';
 import { useEditorStore } from '@/store/editorStore';
-import { EmptyState } from '@/components/EmptyState';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 export function AssemblyViewer() {
   const assembly = useCompilerStore(state => state.assembly);
@@ -8,7 +8,13 @@ export function AssemblyViewer() {
   const setHighlightedLine = useEditorStore(state => state.setHighlightedLine);
 
   if (!assembly || assembly.length === 0) {
-    return <EmptyState title="No Assembly Output" description="Compile your code to view the generated pseudo-assembly." />;
+    return (
+      <StageErrorFallback 
+        stage="assembly" 
+        title="No Assembly Output" 
+        description="Compile your C code to view the generated pseudo-assembly." 
+      />
+    );
   }
 
   const handleMouseEnter = (sourceNodeId?: string | null) => {

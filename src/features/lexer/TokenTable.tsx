@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useCompilerStore } from '@/store/compilerStore';
 import { useEditorStore } from '@/store/editorStore';
-import { EmptyState } from '@/components/EmptyState';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 const TOKEN_COLORS: Record<string, string> = {
   keyword: 'text-[#C084FC]', // matching monaco theme accent
@@ -21,10 +21,6 @@ export function TokenTable() {
   const setHighlightedLine = useEditorStore((state) => state.setHighlightedLine);
   const [showWhitespace, setShowWhitespace] = useState(false);
   
-  if (!tokens || tokens.length === 0) {
-    return <EmptyState title="No Tokens" description="Compile your code to see the Lexer output." />;
-  }
-
   const displayTokens = showWhitespace ? tokens : tokens.filter(t => t.type !== 'whitespace');
 
   const parentRef = useRef<HTMLDivElement>(null);
@@ -35,6 +31,17 @@ export function TokenTable() {
     estimateSize: () => 36, // 36px row height
     overscan: 5,
   });
+
+  if (!tokens || tokens.length === 0) {
+    return (
+      <StageErrorFallback 
+        stage="lexer" 
+        title="No Tokens Available" 
+        description="Compile your C code to see the Lexer output." 
+      />
+    );
+  }
+
 
   return (
     <div className="flex flex-col h-full w-full bg-bg-primary font-mono text-sm">

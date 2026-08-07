@@ -12,7 +12,7 @@ import '@xyflow/react/dist/style.css';
 import { useCompilerStore } from '@/store/compilerStore';
 import { WorkerManager } from '@/services/WorkerManager';
 import { BasicBlockUI } from './BasicBlockUI';
-import { EmptyState } from '@/components/EmptyState';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 import type { IRLayoutOutput } from '@/workers/irLayout.worker';
 import type { IRProgram } from '@/types/compiler';
 
@@ -82,7 +82,13 @@ export function IRViewer() {
   );
 
   if (!ir || Object.keys(ir.blocks || {}).length === 0) {
-    return <EmptyState title="No Intermediate Representation" description="Compile your code to view the IR Control Flow Graph." />;
+    return (
+      <StageErrorFallback 
+        stage="ir" 
+        title="No Intermediate Representation" 
+        description="Compile your C code to view the IR Control Flow Graph." 
+      />
+    );
   }
 
   return (

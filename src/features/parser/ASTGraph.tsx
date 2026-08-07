@@ -12,6 +12,7 @@ import '@xyflow/react/dist/style.css';
 import { useCompilerStore } from '@/store/compilerStore';
 import { WorkerManager } from '@/services/WorkerManager';
 import { ASTNodeUI } from './ASTNodeUI';
+import { StageErrorFallback } from '@/components/StageErrorFallback';
 import type { LayoutOutput } from '@/workers/layout.worker';
 import type { AST } from '@/types/compiler';
 
@@ -82,9 +83,11 @@ export function ASTGraph() {
 
   if (!ast || Object.keys(ast.nodes || {}).length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center text-text-muted text-sm font-mono">
-        Compile code to view the Abstract Syntax Tree (AST)
-      </div>
+      <StageErrorFallback 
+        stage="parser" 
+        title="No AST Available" 
+        description="Compile your C code to view the Abstract Syntax Tree (AST)." 
+      />
     );
   }
 
