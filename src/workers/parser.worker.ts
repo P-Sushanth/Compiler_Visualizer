@@ -166,8 +166,19 @@ class Parser {
         if (this.match('int', 'void', 'float', 'char')) {
            const paramType = this.previous();
            if (paramType.value !== 'void') {
-             this.consume('identifier', 'Expect parameter name.');
-             // Simplified param parsing
+             const paramName = this.consume('identifier', 'Expect parameter name.');
+             const paramId = this.createId();
+             const paramNode: VariableDeclarationNode = {
+               id: paramId,
+               type: 'VariableDeclaration',
+               identifier: paramName.value,
+               value: null,
+               varType: paramType.value,
+               range: { start: paramType.range.start, end: paramName.range.end },
+               children: []
+             };
+             this.addNode(paramNode);
+             params.push(paramId);
            }
         }
       } while (this.match(','));
@@ -186,7 +197,7 @@ class Parser {
       params,
       body,
       range: { start: typeToken.range.start, end: this.previous().range.end },
-      children: [body]
+      children: [...params, body]
     };
     return this.addNode(node);
   }

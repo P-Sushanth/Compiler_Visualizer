@@ -106,6 +106,8 @@ class SemanticAnalyzer {
     }
 
     this.enterScope(); // Global scope
+    this.declareSymbol('printf', 'function', 'builtin_printf', null);
+    this.declareSymbol('scanf', 'function', 'builtin_scanf', null);
     this.visit(this.ast.nodes[this.ast.rootId]);
     this.leaveScope();
 
@@ -137,6 +139,14 @@ class SemanticAnalyzer {
         const fnNode = node as any;
         this.declareSymbol(fnNode.identifier, 'function', fnNode.id, fnNode.range);
         this.enterScope();
+        if (fnNode.params) {
+          for (const paramId of fnNode.params) {
+            const paramNode = this.ast.nodes[paramId];
+            if (paramNode) {
+              this.visit(paramNode);
+            }
+          }
+        }
         this.visit(this.ast.nodes[fnNode.body]);
         this.leaveScope();
         break;

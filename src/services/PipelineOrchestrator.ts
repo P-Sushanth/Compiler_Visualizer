@@ -64,7 +64,7 @@ class PipelineOrchestrator {
       if (signal.aborted) throw new Error('Cancelled');
       const lexerResult = await this.lexerWorker.execute(sourceCode);
       if (lexerResult.errors.length > 0) {
-        this.handleErrors(lexerResult.errors);
+        this.handleErrors(lexerResult.errors, { stageMetrics });
         return;
       }
       stageMetrics.lexer = lexerResult.durationMs;
@@ -76,7 +76,10 @@ class PipelineOrchestrator {
       );
       const parserResult = await this.parserWorker.execute(tokensForParser);
       if (parserResult.errors.length > 0) {
-        this.handleErrors(parserResult.errors);
+        this.handleErrors(parserResult.errors, { 
+          tokens: lexerResult.tokens, 
+          stageMetrics 
+        });
         return;
       }
       stageMetrics.parser = parserResult.durationMs;
@@ -85,7 +88,11 @@ class PipelineOrchestrator {
       if (signal.aborted) throw new Error('Cancelled');
       const semanticResult = await this.semanticWorker.execute(parserResult.ast);
       if (semanticResult.errors.length > 0) {
-        this.handleErrors(semanticResult.errors);
+        this.handleErrors(semanticResult.errors, { 
+          tokens: lexerResult.tokens, 
+          ast: parserResult.ast, 
+          stageMetrics 
+        });
         return;
       }
       stageMetrics.semantic = semanticResult.durationMs;
@@ -94,7 +101,12 @@ class PipelineOrchestrator {
       if (signal.aborted) throw new Error('Cancelled');
       const irResult = await this.irWorker.execute(parserResult.ast);
       if (irResult.errors.length > 0) {
-        this.handleErrors(irResult.errors);
+        this.handleErrors(irResult.errors, { 
+          tokens: lexerResult.tokens, 
+          ast: parserResult.ast, 
+          semanticModel: semanticResult.semanticModel, 
+          stageMetrics 
+        });
         return;
       }
       stageMetrics.ir = irResult.durationMs;
@@ -103,7 +115,13 @@ class PipelineOrchestrator {
       if (signal.aborted) throw new Error('Cancelled');
       const optimizerResult = await this.optimizerWorker.execute(irResult.ir);
       if (optimizerResult.errors.length > 0) {
-        this.handleErrors(optimizerResult.errors);
+        this.handleErrors(optimizerResult.errors, { 
+          tokens: lexerResult.tokens, 
+          ast: parserResult.ast, 
+          semanticModel: semanticResult.semanticModel, 
+          ir: irResult.ir, 
+          stageMetrics 
+        });
         return;
       }
       stageMetrics.optimizer = optimizerResult.durationMs;
@@ -112,7 +130,14 @@ class PipelineOrchestrator {
       if (signal.aborted) throw new Error('Cancelled');
       const assemblyResult = await this.assemblyWorker.execute(optimizerResult.ir);
       if (assemblyResult.errors.length > 0) {
-        this.handleErrors(assemblyResult.errors);
+        this.handleErrors(assemblyResult.errors, { 
+          tokens: lexerResult.tokens, 
+          ast: parserResult.ast, 
+          semanticModel: semanticResult.semanticModel, 
+          ir: irResult.ir, 
+          optimizedIR: optimizerResult.ir, 
+          stageMetrics 
+        });
         return;
       }
       stageMetrics.assembly = assemblyResult.durationMs;
@@ -141,11 +166,11 @@ class PipelineOrchestrator {
     }
   }
 
-  private handleErrors(errors: any[]) {
+  private handleErrors(errors: any[], intermediateOutputs?: any) {
     const compilerStore = useCompilerStore.getState();
     const editorStore = useEditorStore.getState();
     
-    compilerStore.setCompileError(errors);
+    compilerStore.setCompileError(errors, intermediateOutputs);
     
     // Map diagnostics to editor decorations
     const decorations = errors.map(err => ({

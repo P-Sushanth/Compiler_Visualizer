@@ -54,7 +54,10 @@ type CompilerState = {
     stageMetrics: Record<string, number | null>;
     lastCompileDurationMs: number;
   }) => void;
-  setCompileError: (errors: CompilerDiagnostic[]) => void;
+  setCompileError: (
+    errors: CompilerDiagnostic[],
+    intermediateOutputs?: Partial<Pick<CompilerState, 'tokens' | 'ast' | 'semanticModel' | 'ir' | 'optimizedIR' | 'assembly' | 'stageMetrics'>>
+  ) => void;
 };
 
 export const useCompilerStore = create<CompilerState>((set) => ({
@@ -126,8 +129,9 @@ export const useCompilerStore = create<CompilerState>((set) => ({
     diagnostics: [],
   }),
 
-  setCompileError: (errors) => set({
+  setCompileError: (errors, intermediateOutputs = {}) => set({
     status: 'error',
     diagnostics: errors,
+    ...intermediateOutputs,
   }),
 }));
