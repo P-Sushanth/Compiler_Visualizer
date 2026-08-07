@@ -14,7 +14,11 @@ const DELIMITERS = new Set([
   '(', ')', '{', '}', '[', ']', ';', ',', '.'
 ]);
 
+let idCounter = 0;
+const generateId = (prefix: string) => `${prefix}_${idCounter++}`;
+
 export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiagnostic[] } {
+  idCounter = 0;
   const tokens: Token[] = [];
   const errors: CompilerDiagnostic[] = [];
   
@@ -48,7 +52,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         advance();
       }
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'whitespace',
         value,
         range: { start: startPos, end: getPosition() },
@@ -65,7 +69,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         advance();
       }
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'comment',
         value,
         range: { start: startPos, end: getPosition() },
@@ -86,7 +90,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         advance(2);
       } else {
         errors.push({
-          id: crypto.randomUUID(),
+          id: generateId('err'),
           severity: 'error',
           message: 'Unterminated block comment',
           stage: 'lexer',
@@ -94,7 +98,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         });
       }
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'comment',
         value,
         range: { start: startPos, end: getPosition() },
@@ -112,7 +116,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
       }
       const type: TokenType = KEYWORDS.has(value) ? 'keyword' : 'identifier';
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type,
         value,
         range: { start: startPos, end: getPosition() },
@@ -131,7 +135,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         advance();
       }
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'number',
         value,
         range: { start: startPos, end: getPosition() },
@@ -152,7 +156,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         }
         if (sourceCode[offset] === '\n') {
           errors.push({
-            id: crypto.randomUUID(),
+            id: generateId('err'),
             severity: 'error',
             message: 'Unterminated string literal',
             stage: 'lexer',
@@ -168,7 +172,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
         advance();
       }
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'string',
         value,
         range: { start: startPos, end: getPosition() },
@@ -185,7 +189,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
       if (OPERATORS.has(op2)) {
         advance(2);
         tokens.push({
-          id: crypto.randomUUID(),
+          id: generateId('t'),
           type: 'operator',
           value: op2,
           range: { start: startPos, end: getPosition() },
@@ -200,7 +204,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
       if (OPERATORS.has(singleChar)) {
         advance();
         tokens.push({
-          id: crypto.randomUUID(),
+          id: generateId('t'),
           type: 'operator',
           value: singleChar,
           range: { start: startPos, end: getPosition() },
@@ -210,7 +214,7 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
       } else if (DELIMITERS.has(singleChar)) {
         advance();
         tokens.push({
-          id: crypto.randomUUID(),
+          id: generateId('t'),
           type: 'delimiter',
           value: singleChar,
           range: { start: startPos, end: getPosition() },
@@ -225,14 +229,14 @@ export function lex(sourceCode: string): { tokens: Token[], errors: CompilerDiag
       const unknownChar = sourceCode[offset];
       advance();
       errors.push({
-        id: crypto.randomUUID(),
+        id: generateId('err'),
         severity: 'error',
         message: `Unexpected character: ${unknownChar}`,
         stage: 'lexer',
         range: { start: startPos, end: getPosition() }
       });
       tokens.push({
-        id: crypto.randomUUID(),
+        id: generateId('t'),
         type: 'unknown',
         value: unknownChar,
         range: { start: startPos, end: getPosition() },

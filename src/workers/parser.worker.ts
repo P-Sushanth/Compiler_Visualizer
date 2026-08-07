@@ -67,9 +67,11 @@ class Parser {
     return this.peek(); // return current to avoid crash, but it's an error
   }
 
+  private idCounter = 0;
+
   private error(token: Token | undefined, message: string) {
     this.errors.push({
-      id: crypto.randomUUID(),
+      id: this.createId('err'),
       severity: 'error',
       message,
       stage: 'parser',
@@ -82,8 +84,8 @@ class Parser {
     return node.id;
   }
 
-  private createId(): string {
-    return crypto.randomUUID();
+  private createId(prefix = 'n'): string {
+    return `${prefix}_${this.idCounter++}`;
   }
 
   // --- Parsing Logic ---

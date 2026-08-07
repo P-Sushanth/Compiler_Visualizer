@@ -16,12 +16,14 @@ class SemanticAnalyzer {
   private currentScopeId: string | null = null;
   private ast: AST;
 
+  private idCounter = 0;
+
   constructor(ast: AST) {
     this.ast = ast;
   }
 
-  private createId(): string {
-    return crypto.randomUUID();
+  private createId(prefix = 's'): string {
+    return `${prefix}_${this.idCounter++}`;
   }
 
   private enterScope() {

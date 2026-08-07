@@ -30,9 +30,15 @@ export function IRViewer() {
   // Initialize layout worker
   const layoutWorker = useMemo(() => {
     return new WorkerManager<IRProgram, IRLayoutOutput>(
-      new Worker(new URL('../../workers/irLayout.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../../workers/irLayout.worker.ts', import.meta.url), { type: 'module' })
     );
   }, []);
+
+  useEffect(() => {
+    return () => {
+      layoutWorker.terminate();
+    };
+  }, [layoutWorker]);
 
   useEffect(() => {
     let active = true;

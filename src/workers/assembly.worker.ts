@@ -11,12 +11,14 @@ class AssemblyGenerator {
   private availableRegs = ['eax', 'ebx', 'ecx', 'edx', 'esi', 'edi'];
   private regIndex = 0;
 
+  private idCounter = 0;
+
   constructor(ir: IRProgram) {
     this.ir = ir;
   }
 
-  private createId(): string {
-    return crypto.randomUUID();
+  private createId(prefix = 'asm'): string {
+    return `${prefix}_${this.idCounter++}`;
   }
 
   private emit(op: string, args: string[] = [], comment?: string, sourceNodeId?: string | null) {

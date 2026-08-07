@@ -5,10 +5,14 @@ import type { IRProgram } from '../types/compiler';
 class Optimizer {
   private ir: IRProgram;
   private passes: OptimizationPass[] = [];
+  private idCounter = 0;
 
   constructor(ir: IRProgram) {
-    // Deep copy to avoid mutating original
-    this.ir = JSON.parse(JSON.stringify(ir));
+    this.ir = ir;
+  }
+
+  private createId(prefix = 'opt'): string {
+    return `${prefix}_${this.idCounter++}`;
   }
 
   private isConstant(val: string) {
@@ -44,7 +48,7 @@ class Optimizer {
 
     if (modified > 0) {
       this.passes.push({
-        id: crypto.randomUUID(),
+        id: this.createId('pass'),
         name: 'Constant Folding',
         description: 'Evaluated constant expressions at compile time.',
         instructionsRemoved: 0,
@@ -82,9 +86,9 @@ class Optimizer {
 
     if (modified > 0) {
       this.passes.push({
-        id: crypto.randomUUID(),
+        id: this.createId('pass'),
         name: 'Constant Propagation',
-        description: 'Replaced variable references with their known constant values.',
+        description: 'Propagated constant values to variable uses.',
         instructionsRemoved: 0,
         instructionsModified: modified
       });
@@ -125,9 +129,9 @@ class Optimizer {
 
     if (removed > 0) {
       this.passes.push({
-        id: crypto.randomUUID(),
+        id: this.createId('pass'),
         name: 'Dead Code Elimination',
-        description: 'Removed instructions whose results were never used.',
+        description: 'Removed unused instructions and unreachable basic blocks.',
         instructionsRemoved: removed,
         instructionsModified: 0
       });

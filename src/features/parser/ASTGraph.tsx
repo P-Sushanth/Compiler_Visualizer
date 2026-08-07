@@ -29,9 +29,15 @@ export function ASTGraph() {
   // Initialize layout worker
   const layoutWorker = useMemo(() => {
     return new WorkerManager<AST, LayoutOutput>(
-      new Worker(new URL('../../workers/layout.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../../workers/layout.worker.ts', import.meta.url), { type: 'module' })
     );
   }, []);
+
+  useEffect(() => {
+    return () => {
+      layoutWorker.terminate();
+    };
+  }, [layoutWorker]);
 
   useEffect(() => {
     let active = true;

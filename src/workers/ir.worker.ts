@@ -20,12 +20,14 @@ class IRGenerator {
   private tempCounter = 0;
   private labelCounter = 0;
 
+  private idCounter = 0;
+
   constructor(ast: AST) {
     this.ast = ast;
   }
 
-  private createId(): string {
-    return crypto.randomUUID();
+  private createId(prefix = 'ir'): string {
+    return `${prefix}_${this.idCounter++}`;
   }
 
   private newTemp(): string {

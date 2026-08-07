@@ -1,50 +1,63 @@
 import type { WorkerRequest, WorkerResponse } from '@/types/worker';
 
 export class WorkerManager<TPayload, TData> {
-  private worker: Worker;
+  private worker: Worker | null = null;
+  private workerCreator: () => Worker;
   private pendingRequests: Map<string, { resolve: (val: TData) => void, reject: (err: any) => void }>;
   private latestRequestId: string | null = null;
 
-  constructor(worker: Worker) {
-    this.worker = worker;
+  constructor(workerCreator: () => Worker) {
+    this.workerCreator = workerCreator;
     this.pendingRequests = new Map();
+  }
 
-    this.worker.onmessage = (event: MessageEvent<WorkerResponse<TData>>) => {
-      const response = event.data;
-      
-      // Stale request handling: only process if it's the latest request
-      if (response.requestId !== this.latestRequestId) {
-        return; // Ignore stale response
-      }
+  private getOrInitWorker(): Worker {
+    if (!this.worker) {
+      this.worker = this.workerCreator();
 
-      const handlers = this.pendingRequests.get(response.requestId);
-      if (handlers) {
-        this.pendingRequests.delete(response.requestId);
-        if (response.success && response.data !== null) {
-          handlers.resolve(response.data);
-        } else {
-          handlers.reject(new Error(response.error || 'Unknown worker error'));
+      this.worker.onmessage = (event: MessageEvent<WorkerResponse<TData>>) => {
+        const response = event.data;
+        
+        // Stale request handling: only process if it's the latest request
+        if (response.requestId !== this.latestRequestId) {
+          return; // Ignore stale response
         }
-      }
-    };
 
-    this.worker.onerror = (error) => {
-      console.error('Worker error:', error);
-      // Reject all pending requests
-      this.pendingRequests.forEach(({ reject }) => reject(error));
-      this.pendingRequests.clear();
-    };
+        const handlers = this.pendingRequests.get(response.requestId);
+        if (handlers) {
+          this.pendingRequests.delete(response.requestId);
+          if (response.success && response.data !== null) {
+            handlers.resolve(response.data);
+          } else {
+            handlers.reject(new Error(response.error || 'Unknown worker error'));
+          }
+        }
+      };
+
+      this.worker.onerror = (error) => {
+        console.error('Worker error:', error);
+        // Reject all pending requests
+        this.pendingRequests.forEach(({ reject }) => reject(error));
+        this.pendingRequests.clear();
+      };
+    }
+    return this.worker;
   }
 
   public execute(payload: TPayload): Promise<TData> {
     return new Promise((resolve, reject) => {
-      // Cancel previous request if any (latestRequestId concept inherently handles this by ignoring older ones,
-      // but we could also send a specific cancellation message if the worker supported it)
-      if (this.latestRequestId) {
+      // Real task cancellation: if there is a running request, terminate the worker
+      // to abort any synchronous loop running in that worker thread, and then start a new one.
+      if (this.latestRequestId && this.pendingRequests.has(this.latestRequestId)) {
         const previousHandlers = this.pendingRequests.get(this.latestRequestId);
         if (previousHandlers) {
           previousHandlers.reject(new Error('Request cancelled by newer request'));
           this.pendingRequests.delete(this.latestRequestId);
+        }
+        
+        if (this.worker) {
+          this.worker.terminate();
+          this.worker = null; // Forces recreation on next call to getOrInitWorker()
         }
       }
 
@@ -58,13 +71,22 @@ export class WorkerManager<TPayload, TData> {
         payload,
       };
 
-      this.worker.postMessage(request);
+      try {
+        const worker = this.getOrInitWorker();
+        worker.postMessage(request);
+      } catch (err) {
+        reject(err);
+      }
     });
   }
   
   public terminate() {
-    this.worker.terminate();
+    if (this.worker) {
+      this.worker.terminate();
+      this.worker = null;
+    }
     this.pendingRequests.forEach(({ reject }) => reject(new Error('Worker terminated')));
     this.pendingRequests.clear();
   }
 }
+

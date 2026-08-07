@@ -16,22 +16,22 @@ class PipelineOrchestrator {
 
   constructor() {
     this.lexerWorker = new WorkerManager(
-      new Worker(new URL('../workers/lexer.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/lexer.worker.ts', import.meta.url), { type: 'module' })
     );
     this.parserWorker = new WorkerManager(
-      new Worker(new URL('../workers/parser.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/parser.worker.ts', import.meta.url), { type: 'module' })
     );
     this.semanticWorker = new WorkerManager(
-      new Worker(new URL('../workers/semantic.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/semantic.worker.ts', import.meta.url), { type: 'module' })
     );
     this.irWorker = new WorkerManager(
-      new Worker(new URL('../workers/ir.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/ir.worker.ts', import.meta.url), { type: 'module' })
     );
     this.optimizerWorker = new WorkerManager(
-      new Worker(new URL('../workers/optimizer.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/optimizer.worker.ts', import.meta.url), { type: 'module' })
     );
     this.assemblyWorker = new WorkerManager(
-      new Worker(new URL('../workers/assembly.worker.ts', import.meta.url), { type: 'module' })
+      () => new Worker(new URL('../workers/assembly.worker.ts', import.meta.url), { type: 'module' })
     );
   }
 
@@ -46,11 +46,18 @@ class PipelineOrchestrator {
     const compilerStore = useCompilerStore.getState();
     const editorStore = useEditorStore.getState();
     
-    compilerStore.setStatus('running');
-    compilerStore.setDiagnostics([]);
+    compilerStore.setCompileStart();
     editorStore.setErrorDecorations([]);
     
     const startTime = performance.now();
+    const stageMetrics: Record<string, number | null> = {
+      lexer: null,
+      parser: null,
+      semantic: null,
+      ir: null,
+      optimizer: null,
+      assembly: null,
+    };
 
     try {
       // 1. Lexical Analysis
@@ -60,18 +67,19 @@ class PipelineOrchestrator {
         this.handleErrors(lexerResult.errors);
         return;
       }
-      compilerStore.setTokens(lexerResult.tokens);
-      compilerStore.setStageMetric('lexer', lexerResult.durationMs);
+      stageMetrics.lexer = lexerResult.durationMs;
 
       // 2. Syntax Analysis (Parsing)
       if (signal.aborted) throw new Error('Cancelled');
-      const parserResult = await this.parserWorker.execute(lexerResult.tokens);
+      const tokensForParser = lexerResult.tokens.filter(
+        t => t.type !== 'whitespace' && t.type !== 'comment'
+      );
+      const parserResult = await this.parserWorker.execute(tokensForParser);
       if (parserResult.errors.length > 0) {
         this.handleErrors(parserResult.errors);
         return;
       }
-      compilerStore.setAST(parserResult.ast);
-      compilerStore.setStageMetric('parser', parserResult.durationMs);
+      stageMetrics.parser = parserResult.durationMs;
 
       // 3. Semantic Analysis
       if (signal.aborted) throw new Error('Cancelled');
@@ -80,8 +88,7 @@ class PipelineOrchestrator {
         this.handleErrors(semanticResult.errors);
         return;
       }
-      compilerStore.setSemanticModel(semanticResult.semanticModel);
-      compilerStore.setStageMetric('semantic', semanticResult.durationMs);
+      stageMetrics.semantic = semanticResult.durationMs;
 
       // 4. Intermediate Representation (IR)
       if (signal.aborted) throw new Error('Cancelled');
@@ -90,8 +97,7 @@ class PipelineOrchestrator {
         this.handleErrors(irResult.errors);
         return;
       }
-      compilerStore.setIR(irResult.ir);
-      compilerStore.setStageMetric('ir', irResult.durationMs);
+      stageMetrics.ir = irResult.durationMs;
 
       // 5. Optimization
       if (signal.aborted) throw new Error('Cancelled');
@@ -100,9 +106,7 @@ class PipelineOrchestrator {
         this.handleErrors(optimizerResult.errors);
         return;
       }
-      compilerStore.setOptimizedIR(optimizerResult.ir);
-      compilerStore.setOptimizationPasses(optimizerResult.passes);
-      compilerStore.setStageMetric('optimizer', optimizerResult.durationMs);
+      stageMetrics.optimizer = optimizerResult.durationMs;
 
       // 6. Assembly Generation
       if (signal.aborted) throw new Error('Cancelled');
@@ -111,13 +115,21 @@ class PipelineOrchestrator {
         this.handleErrors(assemblyResult.errors);
         return;
       }
-      compilerStore.setAssembly(assemblyResult.instructions);
-      compilerStore.setStageMetric('assembly', assemblyResult.durationMs);
+      stageMetrics.assembly = assemblyResult.durationMs;
 
       // Pipeline complete
       if (signal.aborted) throw new Error('Cancelled');
-      compilerStore.setStatus('success');
-      compilerStore.setLastCompileDurationMs(performance.now() - startTime);
+      compilerStore.setCompileSuccess({
+        tokens: lexerResult.tokens,
+        ast: parserResult.ast,
+        semanticModel: semanticResult.semanticModel,
+        ir: irResult.ir,
+        optimizedIR: optimizerResult.ir,
+        optimizationPasses: optimizerResult.passes,
+        assembly: assemblyResult.instructions,
+        stageMetrics,
+        lastCompileDurationMs: performance.now() - startTime,
+      });
 
     } catch (error: any) {
       if (error.message === 'Cancelled') {
@@ -133,8 +145,7 @@ class PipelineOrchestrator {
     const compilerStore = useCompilerStore.getState();
     const editorStore = useEditorStore.getState();
     
-    compilerStore.setStatus('error');
-    compilerStore.setDiagnostics(errors);
+    compilerStore.setCompileError(errors);
     
     // Map diagnostics to editor decorations
     const decorations = errors.map(err => ({

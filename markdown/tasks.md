@@ -234,10 +234,10 @@ The application must:
 - [x] Optimize graph rendering
 
 ### Worker Optimization
-- [ ] Reduce worker payload sizes
-- [ ] Optimize serialization
-- [ ] Add task cancellation
-- [ ] Add batching
+- [x] Reduce worker payload sizes
+- [x] Optimize serialization
+- [x] Add task cancellation
+- [x] Add batching
 
 ### Bundle Optimization
 - [ ] Analyze bundle size

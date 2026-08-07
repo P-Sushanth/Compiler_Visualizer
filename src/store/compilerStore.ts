@@ -40,6 +40,21 @@ type CompilerState = {
 
   stageMetrics: Record<string, number | null>;
   setStageMetric: (stage: string, ms: number) => void;
+
+  // Batched Actions
+  setCompileStart: () => void;
+  setCompileSuccess: (payload: {
+    tokens: Token[];
+    ast: AST;
+    semanticModel: import('@/types/compiler').SemanticModel;
+    ir: import('@/types/compiler').IRProgram;
+    optimizedIR: import('@/types/compiler').IRProgram;
+    optimizationPasses: import('@/types/pipeline').OptimizationPass[];
+    assembly: import('@/types/pipeline').AssemblyInstruction[];
+    stageMetrics: Record<string, number | null>;
+    lastCompileDurationMs: number;
+  }) => void;
+  setCompileError: (errors: CompilerDiagnostic[]) => void;
 };
 
 export const useCompilerStore = create<CompilerState>((set) => ({
@@ -84,4 +99,35 @@ export const useCompilerStore = create<CompilerState>((set) => ({
   setStageMetric: (stage, ms) => set((state) => ({
     stageMetrics: { ...state.stageMetrics, [stage]: ms }
   })),
+
+  setCompileStart: () => set({
+    status: 'running',
+    diagnostics: [],
+    tokens: null,
+    ast: null,
+    semanticModel: null,
+    ir: null,
+    optimizedIR: null,
+    optimizationPasses: [],
+    assembly: [],
+  }),
+
+  setCompileSuccess: (payload) => set({
+    status: 'success',
+    tokens: payload.tokens,
+    ast: payload.ast,
+    semanticModel: payload.semanticModel,
+    ir: payload.ir,
+    optimizedIR: payload.optimizedIR,
+    optimizationPasses: payload.optimizationPasses,
+    assembly: payload.assembly,
+    stageMetrics: payload.stageMetrics,
+    lastCompileDurationMs: payload.lastCompileDurationMs,
+    diagnostics: [],
+  }),
+
+  setCompileError: (errors) => set({
+    status: 'error',
+    diagnostics: errors,
+  }),
 }));
