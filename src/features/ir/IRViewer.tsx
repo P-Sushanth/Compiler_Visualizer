@@ -6,10 +6,11 @@ import {
   applyNodeChanges, 
   applyEdgeChanges
 } from '@xyflow/react';
-import type { NodeChange, EdgeChange } from '@xyflow/react';
+import type { Node, Edge, NodeChange, EdgeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useCompilerStore } from '@/store/compilerStore';
+import { useUIStore } from '@/store/uiStore';
 import { WorkerManager } from '@/services/WorkerManager';
 import { BasicBlockUI } from './BasicBlockUI';
 import { StageErrorFallback } from '@/components/StageErrorFallback';
@@ -22,9 +23,11 @@ const nodeTypes = {
 
 export function IRViewer() {
   const ir = useCompilerStore(state => state.ir);
+  const mode = useUIStore(state => state.mode);
+  const isBeginner = mode === 'beginner';
   
-  const [nodes, setNodes] = useState<any[]>([]);
-  const [edges, setEdges] = useState<any[]>([]);
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [edges, setEdges] = useState<Edge[]>([]);
   const [isCalculating, setIsCalculating] = useState(false);
 
   // Initialize layout worker
@@ -92,29 +95,41 @@ export function IRViewer() {
   }
 
   return (
-    <div className="w-full h-full relative bg-bg-primary">
-      {isCalculating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-primary/80 backdrop-blur-sm">
-          <span className="text-info font-mono text-sm animate-pulse">Calculating CFG Layout...</span>
+    <div className="w-full h-full relative bg-bg-primary flex flex-col">
+      {isBeginner && (
+        <div className="p-4 bg-bg-tertiary border-b border-border-primary text-xs leading-relaxed text-text-secondary shrink-0 z-10">
+          <h3 className="font-bold text-info mb-1 uppercase tracking-wider text-[10px]">What is Intermediate Representation (IR) & CFG?</h3>
+          <p>
+            The compiler translates the AST into a platform-neutral, simplified language called <strong>Intermediate Representation (IR)</strong>. 
+            It groups instructions into <strong>Basic Blocks</strong> (linear sequences of code with a single entry and exit point). 
+            These blocks are linked together to form a <strong>Control Flow Graph (CFG)</strong>, showing all possible execution paths (loops, branches).
+          </p>
         </div>
       )}
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        fitView
-        minZoom={0.1}
-        className="bg-bg-primary"
-        colorMode="dark"
-      >
-        <Background color="#2A3140" gap={16} />
-        <Controls 
-          className="bg-bg-secondary border border-border-primary fill-text-primary text-text-primary"
-          showInteractive={false}
-        />
-      </ReactFlow>
+      <div className="flex-1 relative min-h-0">
+        {isCalculating && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-bg-primary/80 backdrop-blur-sm">
+            <span className="text-info font-mono text-sm animate-pulse">Calculating CFG Layout...</span>
+          </div>
+        )}
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          fitView
+          minZoom={0.1}
+          className="bg-bg-primary"
+          colorMode="dark"
+        >
+          <Background color="#2A3140" gap={16} />
+          <Controls 
+            className="bg-bg-secondary border border-border-primary fill-text-primary text-text-primary"
+            showInteractive={false}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }

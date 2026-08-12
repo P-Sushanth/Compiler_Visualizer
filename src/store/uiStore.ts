@@ -8,6 +8,8 @@ type UIState = {
   setConsoleOpen: (open: boolean) => void;
   activeConsoleTab: 'problems' | 'output';
   setActiveConsoleTab: (tab: 'problems' | 'output') => void;
+  mode: 'beginner' | 'advanced';
+  setMode: (mode: 'beginner' | 'advanced') => void;
 };
 
 export const useUIStore = create<UIState>((set) => ({
@@ -17,4 +19,6 @@ export const useUIStore = create<UIState>((set) => ({
   setConsoleOpen: (open) => set({ isConsoleOpen: open }),
   activeConsoleTab: 'problems',
   setActiveConsoleTab: (tab) => set({ activeConsoleTab: tab }),
+  mode: 'beginner',
+  setMode: (mode) => set({ mode }),
 }));

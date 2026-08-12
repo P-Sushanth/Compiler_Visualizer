@@ -6,6 +6,7 @@ const SemanticViewer = React.lazy(() => import('@/features/semantic/SemanticView
 const IRViewer = React.lazy(() => import('@/features/ir/IRViewer').then(m => ({ default: m.IRViewer })));
 const OptimizerViewer = React.lazy(() => import('@/features/optimizer/OptimizerViewer').then(m => ({ default: m.OptimizerViewer })));
 const AssemblyViewer = React.lazy(() => import('@/features/assembly/AssemblyViewer').then(m => ({ default: m.AssemblyViewer })));
+const ComparisonViewer = React.lazy(() => import('@/features/compare/ComparisonViewer').then(m => ({ default: m.ComparisonViewer })));
 
 import { useUIStore } from '@/store/uiStore';
 
@@ -40,6 +41,8 @@ export function VisualizationPanel() {
             <OptimizerViewer />
           ) : activeStage === 'assembly' ? (
             <AssemblyViewer />
+          ) : activeStage === 'compare' ? (
+            <ComparisonViewer />
           ) : (
             <div className="flex flex-col h-full w-full items-center justify-center p-6 bg-bg-primary text-center">
               <div className="bg-bg-tertiary border border-border-primary rounded-xl p-8 flex flex-col items-center max-w-md w-full shadow-lg">

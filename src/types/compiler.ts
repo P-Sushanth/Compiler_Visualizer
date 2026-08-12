@@ -15,7 +15,8 @@ export type CompilerStage =
   | "semantic"
   | "ir"
   | "optimizer"
-  | "assembly";
+  | "assembly"
+  | "compare";
 
 export type TokenType =
   | "keyword"

@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { useCompilerStore } from '@/store/compilerStore';
 import { useEditorStore } from '@/store/editorStore';
+import { useUIStore } from '@/store/uiStore';
 import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 export function SemanticViewer() {
   const semanticModel = useCompilerStore((state) => state.semanticModel);
   const ast = useCompilerStore((state) => state.ast);
   const setHighlightedLine = useEditorStore((state) => state.setHighlightedLine);
+  const mode = useUIStore((state) => state.mode);
+  const isBeginner = mode === 'beginner';
   
   const [activeTab, setActiveTab] = useState<'symbols' | 'scopes'>('symbols');
 
@@ -36,6 +39,18 @@ export function SemanticViewer() {
 
   return (
     <div className="flex flex-col h-full w-full bg-bg-primary font-mono text-sm">
+      {/* Educational Banner for Beginner Mode */}
+      {isBeginner && (
+        <div className="p-4 bg-bg-tertiary border-b border-border-primary text-xs leading-relaxed text-text-secondary shrink-0">
+          <h3 className="font-bold text-info mb-1 uppercase tracking-wider text-[10px]">What is Semantic Analysis?</h3>
+          <p>
+            The <strong>Semantic Analyzer</strong> validates the AST for logical consistency. While the parser ensures C code is grammatically 
+            correct, semantic analysis checks rules like type matching and variable declaration availability. It compiles names into a 
+            <strong> Symbol Table</strong> and tracks variable visibility across nested <strong>Scopes</strong> (Global vs Local).
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center px-4 h-10 bg-bg-secondary border-b border-border-primary shrink-0 space-x-2">
         <button 
           onClick={() => setActiveTab('symbols')}

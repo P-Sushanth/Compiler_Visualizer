@@ -10,6 +10,7 @@ import type { Node, Edge, NodeChange, EdgeChange } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useCompilerStore } from '@/store/compilerStore';
+import { useUIStore } from '@/store/uiStore';
 import { WorkerManager } from '@/services/WorkerManager';
 import { ASTNodeUI } from './ASTNodeUI';
 import { StageErrorFallback } from '@/components/StageErrorFallback';
@@ -22,6 +23,8 @@ const nodeTypes = {
 
 export function ASTGraph() {
   const ast = useCompilerStore(state => state.ast);
+  const mode = useUIStore(state => state.mode);
+  const isBeginner = mode === 'beginner';
   
   const [nodes, setNodes] = useState<Node[]>([]);
   const [edges, setEdges] = useState<Edge[]>([]);
@@ -92,29 +95,41 @@ export function ASTGraph() {
   }
 
   return (
-    <div className="w-full h-full relative bg-bg-primary">
-      {isCalculating && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg-primary/80 backdrop-blur-sm">
-          <span className="text-info font-mono text-sm animate-pulse">Calculating Graph Layout...</span>
+    <div className="w-full h-full relative bg-bg-primary flex flex-col">
+      {isBeginner && (
+        <div className="p-4 bg-bg-tertiary border-b border-border-primary text-xs leading-relaxed text-text-secondary shrink-0 z-10">
+          <h3 className="font-bold text-info mb-1 uppercase tracking-wider text-[10px]">What is Syntax Analysis & AST?</h3>
+          <p>
+            The <strong>Parser</strong> translates the flat sequence of tokens into a nested <strong>Abstract Syntax Tree (AST)</strong>. 
+            This tree represents the logical structure of your C code according to grammatical rules, mapping variables, expressions, 
+            and statements into parent-child relationships.
+          </p>
         </div>
       )}
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        fitView
-        minZoom={0.1}
-        className="bg-bg-primary"
-        colorMode="dark"
-      >
-        <Background color="#2A3140" gap={16} />
-        <Controls 
-          className="bg-bg-secondary border border-border-primary fill-text-primary text-text-primary"
-          showInteractive={false}
-        />
-      </ReactFlow>
+      <div className="flex-1 relative min-h-0">
+        {isCalculating && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-bg-primary/80 backdrop-blur-sm">
+            <span className="text-info font-mono text-sm animate-pulse">Calculating Graph Layout...</span>
+          </div>
+        )}
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          nodeTypes={nodeTypes}
+          fitView
+          minZoom={0.1}
+          className="bg-bg-primary"
+          colorMode="dark"
+        >
+          <Background color="#2A3140" gap={16} />
+          <Controls 
+            className="bg-bg-secondary border border-border-primary fill-text-primary text-text-primary"
+            showInteractive={false}
+          />
+        </ReactFlow>
+      </div>
     </div>
   );
 }

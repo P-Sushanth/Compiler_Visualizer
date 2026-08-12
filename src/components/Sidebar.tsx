@@ -8,6 +8,7 @@ const STAGES: { id: CompilerStage; label: string; title: string }[] = [
   { id: 'ir', label: 'IR', title: 'Intermediate Representation' },
   { id: 'optimizer', label: 'OPT', title: 'Optimization Passes' },
   { id: 'assembly', label: 'ASM', title: 'Assembly Generation' },
+  { id: 'compare', label: 'DIFF', title: 'Transformation Diff' },
 ];
 
 export function Sidebar() {

@@ -1,8 +1,24 @@
 import { Handle, Position } from '@xyflow/react';
 import { useEditorStore } from '@/store/editorStore';
+import { useUIStore } from '@/store/uiStore';
 
-export function BasicBlockUI({ data }: { data: any }) {
+const IR_GLOSSARY: Record<string, string> = {
+  'LOAD_CONST': 'Loads a constant literal value into a temporary variable.',
+  'STORE': 'Stores value into a named local variable.',
+  'LOAD': 'Loads a local variable value into a temporary variable.',
+  'ADD': 'Adds two operands and writes to result.',
+  'SUB': 'Subtracts right operand from left operand and writes to result.',
+  'MUL': 'Multiplies two operands and writes to result.',
+  'DIV': 'Divides left operand by right operand and writes to result.',
+  'RET': 'Returns a value and exits the function.',
+  'JUMP': 'Transfers execution unconditionally to a basic block label.',
+  'JUMP_IF_FALSE': 'Branches to a label if the conditional operand is 0 (false).'
+};
+
+export function BasicBlockUI({ data }: { data: { label: string; isEntry?: boolean; instructions: import('@/types/compiler').IRInstruction[] } }) {
   const setHighlightedLine = useEditorStore(state => state.setHighlightedLine);
+  const mode = useUIStore(state => state.mode);
+  const isBeginner = mode === 'beginner';
   
   const handleMouseEnter = () => {
     // We would cross-reference the AST node to get the line number here
@@ -33,12 +49,13 @@ export function BasicBlockUI({ data }: { data: any }) {
       {/* Instructions */}
       <div className="p-2 space-y-1 text-xs">
         {data.instructions && data.instructions.length > 0 ? (
-          data.instructions.map((inst: any, idx: number) => (
+          data.instructions.map((inst: import('@/types/compiler').IRInstruction, idx: number) => (
             <div 
               key={inst.id} 
               className="flex font-mono py-0.5 px-1 hover:bg-bg-secondary/50 rounded cursor-pointer transition-colors group"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
+              title={isBeginner ? (IR_GLOSSARY[inst.opcode] || `${inst.opcode} instruction`) : `ID: ${inst.id}`}
             >
               <div className="w-6 text-text-muted text-right pr-2 opacity-50 group-hover:opacity-100">{idx}</div>
               <div className="flex-1 flex space-x-2">

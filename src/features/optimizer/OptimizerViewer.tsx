@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useCompilerStore } from '@/store/compilerStore';
+import { useUIStore } from '@/store/uiStore';
 import { StageErrorFallback } from '@/components/StageErrorFallback';
 
 export function OptimizerViewer() {
   const ir = useCompilerStore(state => state.ir);
   const optimizedIR = useCompilerStore(state => state.optimizedIR);
   const passes = useCompilerStore(state => state.optimizationPasses);
+  const mode = useUIStore(state => state.mode);
+  const isBeginner = mode === 'beginner';
   
   const [activeTab, setActiveTab] = useState<'passes' | 'diff'>('passes');
 
@@ -41,6 +44,19 @@ export function OptimizerViewer() {
 
   return (
     <div className="flex flex-col h-full w-full bg-bg-primary font-mono text-sm">
+      {/* Educational Banner for Beginner Mode */}
+      {isBeginner && (
+        <div className="p-4 bg-bg-tertiary border-b border-border-primary text-xs leading-relaxed text-text-secondary shrink-0">
+          <h3 className="font-bold text-info mb-1 uppercase tracking-wider text-[10px]">What is Compiler Optimization?</h3>
+          <p>
+            The <strong>Optimizer</strong> processes the intermediate code (IR) to make it run faster or use less memory 
+            without changing what the program actually does. It applies sequential <strong>passes</strong> such as 
+            <em> Constant Folding</em> (replacing expressions like <code>10 + 20</code> with <code>30</code>) and 
+            <em> Dead Code Elimination</em> (removing code that executes but has no effect, like unused variables).
+          </p>
+        </div>
+      )}
+
       <div className="flex items-center px-4 h-10 bg-bg-secondary border-b border-border-primary shrink-0 space-x-2">
         <button 
           onClick={() => setActiveTab('passes')}
