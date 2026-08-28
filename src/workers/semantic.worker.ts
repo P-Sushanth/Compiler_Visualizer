@@ -8,7 +8,7 @@ import type {
   CompilerDiagnostic 
 } from '../types/compiler';
 
-class SemanticAnalyzer {
+export class SemanticAnalyzer {
   private scopes: Record<string, Scope> = {};
   private symbols: Record<string, SymbolEntry> = {};
   private errors: CompilerDiagnostic[] = [];

@@ -2,7 +2,7 @@ import type { WorkerRequest, WorkerResponse } from '../types/worker';
 import type { OptimizerOutput, OptimizationPass } from '../types/pipeline';
 import type { IRProgram } from '../types/compiler';
 
-class Optimizer {
+export class Optimizer {
   private ir: IRProgram;
   private passes: OptimizationPass[] = [];
   private idCounter = 0;

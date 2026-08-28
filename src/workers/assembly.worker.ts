@@ -2,7 +2,7 @@ import type { WorkerRequest, WorkerResponse } from '../types/worker';
 import type { AssemblyOutput, AssemblyInstruction } from '../types/pipeline';
 import type { IRProgram } from '../types/compiler';
 
-class AssemblyGenerator {
+export class AssemblyGenerator {
   private ir: IRProgram;
   private instructions: AssemblyInstruction[] = [];
   

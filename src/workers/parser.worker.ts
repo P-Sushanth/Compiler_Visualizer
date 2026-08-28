@@ -18,7 +18,7 @@ import type {
   IdentifierNode
 } from '../types/compiler';
 
-class Parser {
+export class Parser {
   private current = 0;
   private nodes: Record<string, ASTNode> = {};
   private tokens: Token[];

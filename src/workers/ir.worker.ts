@@ -8,7 +8,7 @@ import type {
   CompilerDiagnostic
 } from '../types/compiler';
 
-class IRGenerator {
+export class IRGenerator {
   private ast: AST;
   private blocks: Record<string, BasicBlock> = {};
   private instructions: Record<string, IRInstruction> = {};
