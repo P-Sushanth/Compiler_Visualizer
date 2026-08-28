@@ -1,17 +1,41 @@
-import React, { Suspense } from 'react';
+import React, { Suspense } from 'react'
 
-const TokenTable = React.lazy(() => import('@/features/lexer/TokenTable').then(m => ({ default: m.TokenTable })));
-const ASTGraph = React.lazy(() => import('@/features/parser/ASTGraph').then(m => ({ default: m.ASTGraph })));
-const SemanticViewer = React.lazy(() => import('@/features/semantic/SemanticViewer').then(m => ({ default: m.SemanticViewer })));
-const IRViewer = React.lazy(() => import('@/features/ir/IRViewer').then(m => ({ default: m.IRViewer })));
-const OptimizerViewer = React.lazy(() => import('@/features/optimizer/OptimizerViewer').then(m => ({ default: m.OptimizerViewer })));
-const AssemblyViewer = React.lazy(() => import('@/features/assembly/AssemblyViewer').then(m => ({ default: m.AssemblyViewer })));
-const ComparisonViewer = React.lazy(() => import('@/features/compare/ComparisonViewer').then(m => ({ default: m.ComparisonViewer })));
+const TokenTable = React.lazy(() =>
+  import('@/features/lexer/TokenTable').then((m) => ({
+    default: m.TokenTable,
+  })),
+)
+const ASTGraph = React.lazy(() =>
+  import('@/features/parser/ASTGraph').then((m) => ({ default: m.ASTGraph })),
+)
+const SemanticViewer = React.lazy(() =>
+  import('@/features/semantic/SemanticViewer').then((m) => ({
+    default: m.SemanticViewer,
+  })),
+)
+const IRViewer = React.lazy(() =>
+  import('@/features/ir/IRViewer').then((m) => ({ default: m.IRViewer })),
+)
+const OptimizerViewer = React.lazy(() =>
+  import('@/features/optimizer/OptimizerViewer').then((m) => ({
+    default: m.OptimizerViewer,
+  })),
+)
+const AssemblyViewer = React.lazy(() =>
+  import('@/features/assembly/AssemblyViewer').then((m) => ({
+    default: m.AssemblyViewer,
+  })),
+)
+const ComparisonViewer = React.lazy(() =>
+  import('@/features/compare/ComparisonViewer').then((m) => ({
+    default: m.ComparisonViewer,
+  })),
+)
 
-import { useUIStore } from '@/store/uiStore';
+import { useUIStore } from '@/store/uiStore'
 
 export function VisualizationPanel() {
-  const activeStage = useUIStore((state) => state.activeStage);
+  const activeStage = useUIStore((state) => state.activeStage)
 
   return (
     <section className="flex flex-col h-full bg-bg-primary w-full shadow-[-4px_0_15px_rgba(0,0,0,0.5)] z-20">
@@ -24,11 +48,13 @@ export function VisualizationPanel() {
         </span>
       </div>
       <div className="flex-1 overflow-hidden relative">
-        <Suspense fallback={
-          <div className="flex h-full w-full items-center justify-center">
-            <div className="w-8 h-8 border-4 border-t-info border-r-transparent border-b-info border-l-transparent rounded-full animate-spin"></div>
-          </div>
-        }>
+        <Suspense
+          fallback={
+            <div className="flex h-full w-full items-center justify-center">
+              <div className="w-8 h-8 border-4 border-t-info border-r-transparent border-b-info border-l-transparent rounded-full animate-spin"></div>
+            </div>
+          }
+        >
           {activeStage === 'lexer' ? (
             <TokenTable />
           ) : activeStage === 'parser' ? (
@@ -53,7 +79,9 @@ export function VisualizationPanel() {
                   Active Visualization: {String(activeStage).toUpperCase()}
                 </h3>
                 <p className="text-text-muted text-sm leading-relaxed">
-                  Compile your C code to see the stage-specific outputs (Tokens, AST Graph, Scope Hierarchy, LLVM IR, or Assembly Instructions).
+                  Compile your C code to see the stage-specific outputs (Tokens,
+                  AST Graph, Scope Hierarchy, LLVM IR, or Assembly
+                  Instructions).
                 </p>
               </div>
             </div>
@@ -61,5 +89,5 @@ export function VisualizationPanel() {
         </Suspense>
       </div>
     </section>
-  );
+  )
 }

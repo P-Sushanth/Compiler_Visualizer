@@ -1,54 +1,54 @@
-import { describe, it, expect } from 'vitest';
-import { lex } from '../lexer.worker';
-import { Parser } from '../parser.worker';
-import { IRGenerator } from '../ir.worker';
+import { describe, it, expect } from 'vitest'
+import { lex } from '../lexer.worker'
+import { Parser } from '../parser.worker'
+import { IRGenerator } from '../ir.worker'
 
 describe('IR Generator', () => {
   it('should generate basic IR instructions for variable declarations', () => {
-    const { tokens } = lex('int x = 42;');
-    const { ast } = new Parser(tokens).parse();
-    
-    const generator = new IRGenerator(ast);
-    const { ir, errors } = generator.generate();
+    const { tokens } = lex('int x = 42;')
+    const { ast } = new Parser(tokens).parse()
 
-    expect(errors).toHaveLength(0);
-    expect(ir.entryBlockId).toBeDefined();
+    const generator = new IRGenerator(ast)
+    const { ir, errors } = generator.generate()
 
-    const entryBlock = ir.blocks[ir.entryBlockId];
-    expect(entryBlock).toBeDefined();
-    expect(entryBlock.instructionIds.length).toBeGreaterThan(0);
+    expect(errors).toHaveLength(0)
+    expect(ir.entryBlockId).toBeDefined()
 
-    const instructions = Object.values(ir.instructions);
-    
+    const entryBlock = ir.blocks[ir.entryBlockId]
+    expect(entryBlock).toBeDefined()
+    expect(entryBlock.instructionIds.length).toBeGreaterThan(0)
+
+    const instructions = Object.values(ir.instructions)
+
     // We expect a LOAD_CONST for 42 and a STORE to x
-    const loadConst = instructions.find(inst => inst.opcode === 'LOAD_CONST');
-    const store = instructions.find(inst => inst.opcode === 'STORE');
+    const loadConst = instructions.find((inst) => inst.opcode === 'LOAD_CONST')
+    const store = instructions.find((inst) => inst.opcode === 'STORE')
 
-    expect(loadConst).toBeDefined();
-    expect(loadConst?.operands).toContain('42');
-    
-    expect(store).toBeDefined();
-    expect(store?.result).toBe('x');
-  });
+    expect(loadConst).toBeDefined()
+    expect(loadConst?.operands).toContain('42')
+
+    expect(store).toBeDefined()
+    expect(store?.result).toBe('x')
+  })
 
   it('should generate binary expressions in IR', () => {
-    const { tokens } = lex('int x = 5 + 3;');
-    const { ast } = new Parser(tokens).parse();
-    
-    const generator = new IRGenerator(ast);
-    const { ir } = generator.generate();
+    const { tokens } = lex('int x = 5 + 3;')
+    const { ast } = new Parser(tokens).parse()
 
-    const instructions = Object.values(ir.instructions);
-    
+    const generator = new IRGenerator(ast)
+    const { ir } = generator.generate()
+
+    const instructions = Object.values(ir.instructions)
+
     // Should have ADD opcode
-    const addInst = instructions.find(inst => inst.opcode === 'ADD');
-    expect(addInst).toBeDefined();
-    
+    const addInst = instructions.find((inst) => inst.opcode === 'ADD')
+    expect(addInst).toBeDefined()
+
     // Operand results should feed into STORE
-    const storeInst = instructions.find(inst => inst.opcode === 'STORE');
-    expect(storeInst).toBeDefined();
-    expect(storeInst?.result).toBe('x');
-  });
+    const storeInst = instructions.find((inst) => inst.opcode === 'STORE')
+    expect(storeInst).toBeDefined()
+    expect(storeInst?.result).toBe('x')
+  })
 
   it('should generate labels and jumps for conditional structures', () => {
     const code = `
@@ -60,21 +60,23 @@ describe('IR Generator', () => {
           x = 20;
         }
       }
-    `;
-    const { tokens } = lex(code);
-    const { ast } = new Parser(tokens).parse();
-    
-    const generator = new IRGenerator(ast);
-    const { ir } = generator.generate();
+    `
+    const { tokens } = lex(code)
+    const { ast } = new Parser(tokens).parse()
 
-    const instructions = Object.values(ir.instructions);
-    
+    const generator = new IRGenerator(ast)
+    const { ir } = generator.generate()
+
+    const instructions = Object.values(ir.instructions)
+
     // Check if we have JUMP or JUMP_IF_FALSE (or similar) instructions
-    const branchInst = instructions.find(inst => inst.opcode === 'JUMPIFNOT' || inst.opcode === 'JUMP');
-    expect(branchInst).toBeDefined();
+    const branchInst = instructions.find(
+      (inst) => inst.opcode === 'JUMPIFNOT' || inst.opcode === 'JUMP',
+    )
+    expect(branchInst).toBeDefined()
 
     // Check basic blocks
-    const blocks = Object.values(ir.blocks);
-    expect(blocks.length).toBeGreaterThan(2); // entry, then, else, endif
-  });
-});
+    const blocks = Object.values(ir.blocks)
+    expect(blocks.length).toBeGreaterThan(2) // entry, then, else, endif
+  })
+})

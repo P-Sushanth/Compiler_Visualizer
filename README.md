@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# Compiler Execution Visualizer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, browser-based educational platform that visualizes the internal stages of a compiler in real time. It is designed to help students, teachers, and systems enthusiasts build a strong intuition for compiler design.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🌟 Key Features
 
-## React Compiler
+The visualizer supports compiling standard subset **C code** through the following stages:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. **Lexical Analysis (Tokenization)**: Converts raw character streams into token sequences (e.g. keywords, identifiers, operations), highlighting source positions and token details.
+2. **Syntax Analysis (Parsing & AST)**: Generates a hierarchical Abstract Syntax Tree (AST) displayed as a collapsible, interactive node graph with layout calculations.
+3. **Semantic Analysis**: Checks declarations, tracks scope hierarchies (including parent links), checks symbol table variables, and flags errors (e.g. redeclaring variables, referencing undeclared names).
+4. **Intermediate Representation (IR)**: Generates static single assignment / three-address intermediate code representations (like `LOAD`, `STORE`, `JUMPIFNOT`, `JUMP`) and splits it into Control Flow Graph (CFG) basic blocks.
+5. **Optimization**: Emits optimization passes (such as Constant Folding, Constant Propagation, and Dead Code Elimination) showing before/after diffs.
+6. **Assembly Generation**: Translates optimized IR to pseudo-assembly instructions mapped directly to registers and memory.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ⚙️ Architecture Principles
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Zero-Backend Execution**: The compiler pipeline runs entirely client-side using WebAssembly and lightweight JavaScript parsers, making hosting extremely low-cost and secure.
+- **Multithreaded Performance**: All CPU-intensive analysis (Lexing, Parsing, Semantics, IR generation, and Graph layout calculations) runs inside **Web Workers**, ensuring the Monaco editor and UI rendering never freeze or lag.
+- **Zustand State Store**: Features a clean state-store separation separating compiler outputs from the active UI panel state.
+- **Responsive Layout**: Powered by `react-resizable-panels` allowing customizable panel sizes.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 🛠️ Tech Stack
+
+- **Framework**: [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- **Tooling**: [Vite](https://vite.dev)
+- **Editor**: [Monaco Editor](https://microsoft.github.io/monaco-editor/)
+- **Visualizations**: [React Flow (XYFlow)](https://reactflow.dev/) & [Dagre](https://github.com/dagrejs/dagre) for graph layouts
+- **State**: [Zustand](https://zustand-demo.pmnd.rs/)
+- **Styling**: [TailwindCSS](https://tailwindcss.com/)
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Ensure you have [Node.js](https://nodejs.org) (v18+) installed.
+
+### Setup and Installation
+
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd compiler
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 🧪 Testing
+
+The project has a comprehensive testing suite verifying compiler pipeline stages, worker communication protocols, UI navigation, and performance boundaries.
+
+- **Test Runner**: [Vitest](https://vitest.dev)
+- **Environment**: `jsdom` + mock worker threads (`src/test/setup.ts`)
+
+Run the test suite:
+```bash
+npm run test:run
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Start the test runner in watch mode:
+```bash
+npm run test
 ```

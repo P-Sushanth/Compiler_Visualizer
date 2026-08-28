@@ -1,5 +1,5 @@
-import { useUIStore } from '@/store/uiStore';
-import type { CompilerStage } from '@/types/compiler';
+import { useUIStore } from '@/store/uiStore'
+import type { CompilerStage } from '@/types/compiler'
 
 const STAGES: { id: CompilerStage; label: string; title: string }[] = [
   { id: 'lexer', label: 'LEX', title: 'Lexical Analysis' },
@@ -9,13 +9,13 @@ const STAGES: { id: CompilerStage; label: string; title: string }[] = [
   { id: 'optimizer', label: 'OPT', title: 'Optimization Passes' },
   { id: 'assembly', label: 'ASM', title: 'Assembly Generation' },
   { id: 'compare', label: 'DIFF', title: 'Transformation Diff' },
-];
+]
 
 export function Sidebar() {
-  const { activeStage, setActiveStage } = useUIStore();
+  const { activeStage, setActiveStage } = useUIStore()
 
   return (
-    <aside 
+    <aside
       className="w-16 bg-bg-secondary border-r border-border-primary flex flex-col items-center py-4 space-y-4 shrink-0 z-10"
       role="navigation"
       aria-label="Compiler Stages Navigation"
@@ -37,5 +37,5 @@ export function Sidebar() {
         </button>
       ))}
     </aside>
-  );
+  )
 }

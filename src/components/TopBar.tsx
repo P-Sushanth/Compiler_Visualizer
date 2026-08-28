@@ -1,9 +1,9 @@
-import { useUIStore } from '@/store/uiStore';
-import { useEditorStore } from '@/store/editorStore';
-import { pipeline } from '@/services/PipelineOrchestrator';
+import { useUIStore } from '@/store/uiStore'
+import { useEditorStore } from '@/store/editorStore'
+import { pipeline } from '@/services/PipelineOrchestrator'
 
 export function TopBar() {
-  const { mode, setMode } = useUIStore();
+  const { mode, setMode } = useUIStore()
 
   return (
     <header className="flex items-center justify-between px-6 h-14 bg-bg-secondary border-b border-border-primary shrink-0">
@@ -17,9 +17,9 @@ export function TopBar() {
       </div>
       <div className="flex items-center space-x-4">
         {/* Mode Selector Toggle */}
-        <div 
-          className="flex items-center bg-bg-tertiary border border-border-primary rounded-md p-0.5" 
-          role="radiogroup" 
+        <div
+          className="flex items-center bg-bg-tertiary border border-border-primary rounded-md p-0.5"
+          role="radiogroup"
           aria-label="Learning Mode Selection"
         >
           <button
@@ -48,10 +48,10 @@ export function TopBar() {
           </button>
         </div>
 
-        <button 
+        <button
           onClick={() => {
-            const { sourceCode } = useEditorStore.getState();
-            pipeline.compile(sourceCode);
+            const { sourceCode } = useEditorStore.getState()
+            pipeline.compile(sourceCode)
           }}
           className="px-3 py-1.5 text-xs font-medium rounded-md bg-info hover:bg-info/90 transition-all text-text-primary cursor-pointer focus-visible:ring-2 focus-visible:ring-info focus-visible:outline-none"
           aria-label="Compile code and run pipeline"
@@ -60,5 +60,5 @@ export function TopBar() {
         </button>
       </div>
     </header>
-  );
+  )
 }

@@ -1,37 +1,33 @@
-import { useCallback, useEffect, useRef } from 'react';
-import Editor, { useMonaco } from '@monaco-editor/react';
-import type { OnMount } from '@monaco-editor/react';
-import { useEditorStore, CODE_EXAMPLES } from '@/store/editorStore';
-import { useDebounce } from '@/hooks/useDebounce';
-import { useUIStore } from '@/store/uiStore';
-import { pipeline } from '@/services/PipelineOrchestrator';
-import { ConsolePanel } from './ConsolePanel';
-import { Panel, Group, Separator } from 'react-resizable-panels';
+import { useCallback, useEffect, useRef } from 'react'
+import Editor, { useMonaco } from '@monaco-editor/react'
+import type { OnMount } from '@monaco-editor/react'
+import { useEditorStore, CODE_EXAMPLES } from '@/store/editorStore'
+import { useDebounce } from '@/hooks/useDebounce'
+import { useUIStore } from '@/store/uiStore'
+import { pipeline } from '@/services/PipelineOrchestrator'
+import { ConsolePanel } from './ConsolePanel'
+import { Panel, Group, Separator } from 'react-resizable-panels'
 
-import { memo } from 'react';
+import { memo } from 'react'
 
 export const EditorPanel = memo(function EditorPanel() {
-  const { 
-    sourceCode, 
-    setSourceCode,
-    errorDecorations,
-    highlightedLine
-  } = useEditorStore();
+  const { sourceCode, setSourceCode, errorDecorations, highlightedLine } =
+    useEditorStore()
 
-  const { isConsoleOpen, setConsoleOpen } = useUIStore();
-  
-  const monaco = useMonaco();
-  const editorRef = useRef<any>(null);
-  const decorationsCollection = useRef<any>(null);
+  const { isConsoleOpen, setConsoleOpen } = useUIStore()
+
+  const monaco = useMonaco()
+  const editorRef = useRef<any>(null)
+  const decorationsCollection = useRef<any>(null)
 
   // Debounced compile logic
-  const debouncedCode = useDebounce(sourceCode, 600);
+  const debouncedCode = useDebounce(sourceCode, 600)
 
   useEffect(() => {
     if (debouncedCode) {
-      pipeline.compile(debouncedCode);
+      pipeline.compile(debouncedCode)
     }
-  }, [debouncedCode]);
+  }, [debouncedCode])
 
   useEffect(() => {
     if (monaco) {
@@ -55,20 +51,21 @@ export const EditorPanel = memo(function EditorPanel() {
           'editor.lineHighlightBackground': '#161A22',
           'editorError.foreground': '#DA3633',
         },
-      });
-      monaco.editor.setTheme('neo-brutalist');
+      })
+      monaco.editor.setTheme('neo-brutalist')
     }
-  }, [monaco]);
+  }, [monaco])
 
   // Apply decorations (Errors and Highlights)
   useEffect(() => {
-    if (!editorRef.current || !monaco) return;
+    if (!editorRef.current || !monaco) return
 
     if (!decorationsCollection.current) {
-      decorationsCollection.current = editorRef.current.createDecorationsCollection();
+      decorationsCollection.current =
+        editorRef.current.createDecorationsCollection()
     }
 
-    const decorations: any[] = [];
+    const decorations: any[] = []
 
     // Add Error Decorations
     errorDecorations.forEach((err) => {
@@ -78,10 +75,10 @@ export const EditorPanel = memo(function EditorPanel() {
           isWholeLine: true,
           className: 'bg-error/20',
           glyphMarginClassName: 'bg-error',
-          hoverMessage: { value: err.message }
-        }
-      });
-    });
+          hoverMessage: { value: err.message },
+        },
+      })
+    })
 
     // Add Line Highlighting (e.g. for step-by-step visualization)
     if (highlightedLine !== null) {
@@ -89,51 +86,54 @@ export const EditorPanel = memo(function EditorPanel() {
         range: new monaco.Range(highlightedLine, 1, highlightedLine, 1),
         options: {
           isWholeLine: true,
-          className: 'bg-info/20 border-l-4 border-info'
-        }
-      });
+          className: 'bg-info/20 border-l-4 border-info',
+        },
+      })
     }
 
-    decorationsCollection.current.set(decorations);
-  }, [errorDecorations, highlightedLine, monaco]);
+    decorationsCollection.current.set(decorations)
+  }, [errorDecorations, highlightedLine, monaco])
 
   // Highlighted line auto-scroll and focus
   useEffect(() => {
     if (editorRef.current && highlightedLine !== null) {
-      editorRef.current.revealLineInCenter(highlightedLine);
-      editorRef.current.setPosition({ lineNumber: highlightedLine, column: 1 });
-      editorRef.current.focus();
+      editorRef.current.revealLineInCenter(highlightedLine)
+      editorRef.current.setPosition({ lineNumber: highlightedLine, column: 1 })
+      editorRef.current.focus()
     }
-  }, [highlightedLine]);
+  }, [highlightedLine])
 
   const handleEditorMount: OnMount = (editor, monacoInstance) => {
-    editorRef.current = editor;
+    editorRef.current = editor
 
     // Add Ctrl+Enter / Cmd+Enter shortcut
-    editor.addCommand(monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter, () => {
-      pipeline.compile(editor.getValue());
-    });
-  };
+    editor.addCommand(
+      monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter,
+      () => {
+        pipeline.compile(editor.getValue())
+      },
+    )
+  }
 
   const handleEditorChange = useCallback(
     (value: string | undefined) => {
       if (value !== undefined) {
-        setSourceCode(value);
+        setSourceCode(value)
       }
     },
-    [setSourceCode]
-  );
+    [setSourceCode],
+  )
 
   const renderEditorContent = () => (
     <div className="flex flex-col h-full w-full">
       <div className="flex items-center px-4 h-10 bg-bg-secondary border-b border-border-primary shrink-0 justify-between">
         <div className="flex items-center space-x-4">
           <span className="text-xs font-mono text-text-secondary">main.c</span>
-          <select 
+          <select
             className="bg-bg-tertiary text-text-primary text-xs px-2 py-1 rounded border border-border-primary outline-none focus:border-info cursor-pointer"
             onChange={(e) => {
-              const ex = e.target.value as keyof typeof CODE_EXAMPLES;
-              setSourceCode(CODE_EXAMPLES[ex]);
+              const ex = e.target.value as keyof typeof CODE_EXAMPLES
+              setSourceCode(CODE_EXAMPLES[ex])
             }}
           >
             <option value="basic">Basic Math</option>
@@ -150,8 +150,8 @@ export const EditorPanel = memo(function EditorPanel() {
           <button
             onClick={() => setConsoleOpen(!isConsoleOpen)}
             className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold border transition-colors cursor-pointer ${
-              isConsoleOpen 
-                ? 'bg-info/20 text-info border-info/40 font-extrabold' 
+              isConsoleOpen
+                ? 'bg-info/20 text-info border-info/40 font-extrabold'
                 : 'bg-bg-tertiary text-text-secondary border-border-primary hover:border-border-secondary'
             }`}
           >
@@ -191,7 +191,7 @@ export const EditorPanel = memo(function EditorPanel() {
         />
       </div>
     </div>
-  );
+  )
 
   return (
     <section className="flex-1 bg-bg-primary flex flex-col min-w-0 h-full">
@@ -209,5 +209,5 @@ export const EditorPanel = memo(function EditorPanel() {
         renderEditorContent()
       )}
     </section>
-  );
-});
+  )
+})

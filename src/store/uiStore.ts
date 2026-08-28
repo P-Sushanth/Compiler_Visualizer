@@ -1,16 +1,16 @@
-import { create } from 'zustand';
-import type { CompilerStage } from '@/types/compiler';
+import { create } from 'zustand'
+import type { CompilerStage } from '@/types/compiler'
 
 type UIState = {
-  activeStage: CompilerStage;
-  setActiveStage: (stage: CompilerStage) => void;
-  isConsoleOpen: boolean;
-  setConsoleOpen: (open: boolean) => void;
-  activeConsoleTab: 'problems' | 'output';
-  setActiveConsoleTab: (tab: 'problems' | 'output') => void;
-  mode: 'beginner' | 'advanced';
-  setMode: (mode: 'beginner' | 'advanced') => void;
-};
+  activeStage: CompilerStage
+  setActiveStage: (stage: CompilerStage) => void
+  isConsoleOpen: boolean
+  setConsoleOpen: (open: boolean) => void
+  activeConsoleTab: 'problems' | 'output'
+  setActiveConsoleTab: (tab: 'problems' | 'output') => void
+  mode: 'beginner' | 'advanced'
+  setMode: (mode: 'beginner' | 'advanced') => void
+}
 
 export const useUIStore = create<UIState>((set) => ({
   activeStage: 'lexer',
@@ -21,4 +21,4 @@ export const useUIStore = create<UIState>((set) => ({
   setActiveConsoleTab: (tab) => set({ activeConsoleTab: tab }),
   mode: 'beginner',
   setMode: (mode) => set({ mode }),
-}));
+}))
